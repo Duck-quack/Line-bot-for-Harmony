@@ -30,6 +30,9 @@ function create_spreadsheet(version){
   article_sheet.setColumnWidth(2, 500);
   article_sheet.setColumnWidth(3, 250);
   article_sheet.setColumnWidth(4, 100);
+  for(var i = 1;i <= 30;i++){
+      article_sheet.setRowHeight(i, 200);
+  }
   
   //create letter_sheet
   letter_sheet.appendRow(["", 'size','font']);
@@ -77,7 +80,7 @@ function get_spreadsheet(sheet_id) {
 }
 
 function cancelling(inputing_row,sheet){
-  sheet.getRange(inputing_row,1,1,4).clearContent();//‹LŽ–‚ÌƒZƒ‹“à—e‚ðÁ‹Ž
+  sheet.getRange(inputing_row,1,1,4).clearContent();//è¨˜äº‹ã®ã‚»ãƒ«å†…å®¹ã‚’æ¶ˆåŽ»
   manage_sheet.getRange(2,1,1,3).clearContent();
   manage_sheet.getRange(2,6).clearContent();
   return;
@@ -126,11 +129,11 @@ function doPost(e) {
     inputing_row.setValue(sheet.lastRow()+1);
   }
   
-  //V‚µ‚¢ƒn[ƒ‚ƒj[—p‚ÌƒXƒvƒŒƒbƒhƒV[ƒgì¬
-  if(user_message == "ƒn[ƒ‚ƒj[ì¬"){
+  //æ–°ã—ã„ãƒãƒ¼ãƒ¢ãƒ‹ãƒ¼ç”¨ã®ã‚¹ãƒ—ãƒ¬ãƒƒãƒ‰ã‚·ãƒ¼ãƒˆä½œæˆ
+  if(user_message == "ãƒãƒ¼ãƒ¢ãƒ‹ãƒ¼ä½œæˆ"){
     if(user_id == "Line User ID of admin"){
       version.setValue(1);
-      return reply("ƒo[ƒWƒ‡ƒ“–¼‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢",e);
+      return reply("ãƒãƒ¼ã‚¸ãƒ§ãƒ³åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„",e);
     }else {
       return reply(user_id,e);
     }
@@ -141,27 +144,27 @@ function doPost(e) {
       version.setValue(0);
       document_ver.setValue(1);
       inputing_row.setValue(2);
-      return reply("ì¬Š®—¹I\n" + sps_url,e);
+      return reply("ä½œæˆå®Œäº†ï¼\n" + sps_url,e);
     }
   }
   
-  //Šñe
-  if(user_message == "Šñe‚·‚é" && using.getValue() == 0){
+  //å¯„ç¨¿
+  if(user_message == "å¯„ç¨¿ã™ã‚‹" && using.getValue() == 0){
     using.setValue(1);
     entering_user.setValue(user_id);
     
     cell = sheet.getRange(inputing_row.getValue(), 3)
     cell.setValue(user_id);
       
-    return reply("ƒ^ƒCƒgƒ‹‚Í‰½‚Å‚·‚©H",e);
-  }else if(user_message == "Šñe‚·‚é"){
-    return reply("Œ»ÝŽg—p’†‚Å‚·I‚Ü‚½Œã‚Å‚¨ŽŽ‚µ‚­‚¾‚³‚¢I",e);
+    return reply("ã‚¿ã‚¤ãƒˆãƒ«ã¯ä½•ã§ã™ã‹ï¼Ÿ",e);
+  }else if(user_message == "å¯„ç¨¿ã™ã‚‹"){
+    return reply("ç¾åœ¨ä½¿ç”¨ä¸­ã§ã™ï¼ã¾ãŸå¾Œã§ãŠè©¦ã—ãã ã•ã„ï¼",e);
   }
   
   if(using.getValue() == 1 && user_id == entering_user.getValue()){
-    if(user_message == "’†Ž~"){
+    if(user_message == "ä¸­æ­¢"){
       cancelling(inputing_row.getValue(),sheet);
-      return reply("’†Ž~‚µ‚Ü‚µ‚½B\nÄ“xŠñe‚·‚éê‡‚Í‚à‚¤ˆê“xuŠñe‚·‚év‚ÆŒ¾‚Á‚Ä‚­‚¾‚³‚¢ô",e);
+      return reply("ä¸­æ­¢ã—ã¾ã—ãŸã€‚\nå†åº¦å¯„ç¨¿ã™ã‚‹å ´åˆã¯ã‚‚ã†ä¸€åº¦ã€Œå¯„ç¨¿ã™ã‚‹ã€ã¨è¨€ã£ã¦ãã ã•ã„â™ª",e);
     }
     if(title.getValue() == 0){
       title.setValue(1);
@@ -169,7 +172,7 @@ function doPost(e) {
       cell = sheet.getRange(inputing_row.getValue(),1);
       cell.setValue(user_message);
       
-      reply("‹LŽ–‚Ì“à—e‚ð‘‚¢‚Ä‚­‚¾‚³‚¢",e);
+      reply("è¨˜äº‹ã®å†…å®¹ã‚’æ›¸ã„ã¦ãã ã•ã„",e);
       return reply(e);
     }else if(article.getValue() == 0){
       cell = sheet.getRange(inputing_row.getValue(),2);
@@ -178,15 +181,15 @@ function doPost(e) {
       manage_sheet.getRange(2,1,1,3).clearContent();
       manage_sheet.getRange(2,6).clearContent();
       inputing_row.setValue(inputing_row.getValue() + 1);
-      return reply("ŠñeŠ®—¹‚µ‚Ü‚µ‚½I‚ ‚è‚ª‚Æ‚¤‚²‚´‚¢‚Ü‚·[I",e);
+      return reply("å¯„ç¨¿å®Œäº†ã—ã¾ã—ãŸï¼ã‚ã‚ŠãŒã¨ã†ã”ã–ã„ã¾ã™ãƒ¼ï¼",e);
     }
   }
   
-  if(user_message == "ƒwƒ‹ƒv"){
-    return reply("Šñe‚µ‚½‚¢‚Æ‚«‚ÍuŠñe‚·‚év\n‘‚¢‚Ä‚é“r’†‚Å‚â‚ß‚½‚­‚È‚Á‚½‚çu’†Ž~v\n‚ÆŒ¾‚Á‚Ä‚­‚¾‚³‚¢ô\n‚»‚Ì‘¼ƒoƒOAŽ¿–âA—v–]‚È‚Ç‚ ‚è‚Ü‚µ‚½‚ç”¨’†‚Ü‚Å`",e);
+  if(user_message == "ãƒ˜ãƒ«ãƒ—"){
+    return reply("å¯„ç¨¿ã—ãŸã„ã¨ãã¯ã€Œå¯„ç¨¿ã™ã‚‹ã€\næ›¸ã„ã¦ã‚‹é€”ä¸­ã§ã‚„ã‚ãŸããªã£ãŸã‚‰ã€Œä¸­æ­¢ã€\nã¨è¨€ã£ã¦ãã ã•ã„â™ª\nãã®ä»–ãƒã‚°ã€è³ªå•ã€è¦æœ›ãªã©ã‚ã‚Šã¾ã—ãŸã‚‰ç•‘ä¸­ã¾ã§ï½ž",e);
   }
   
   else{
-    return reply("•ª‚©‚ç‚È‚¢‚±‚Æ‚ª‚ ‚Á‚½‚çuƒwƒ‹ƒvv‚Á‚ÄŒ¾‚Á‚Ä‚ËI",e);
+    return reply("åˆ†ã‹ã‚‰ãªã„ã“ã¨ãŒã‚ã£ãŸã‚‰ã€Œãƒ˜ãƒ«ãƒ—ã€ã£ã¦è¨€ã£ã¦ã­ï¼",e);
   }
 }
