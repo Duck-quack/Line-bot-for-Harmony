@@ -1,88 +1,6 @@
 var CHANNEL_ACCESS_TOKEN = 'your access token'; 
 var line_endpoint = 'https://api.line.me/v2/bot/message/reply';
 
-var manage_sps = SpreadsheetApp.openById('ID of manage spreadsheet');
-var manage_sheet = manage_sps.getSheets()[0];
-  
-var using = manage_sheet.getRange(2, 1);
-var title = manage_sheet.getRange(2, 2);
-var article = manage_sheet.getRange(2, 3);
-var inputing_row = manage_sheet.getRange(2, 5);
-var entering_user = manage_sheet.getRange(2, 6);
-var version = manage_sheet.getRange(2, 7);
-var spreadsheet_id = manage_sheet.getRange(2, 8);
-var initial_id = manage_sheet.getRange(2, 9);
-var document_ver = manage_sheet.getRange(2, 11);
-var input_data;
-
-
-function create_spreadsheet(version){
-  var spreadsheet = SpreadsheetApp.create(version);
-  var article_sheet = spreadsheet.getSheets()[0];
-  spreadsheet.insertSheet("letter", 1);
-  spreadsheet.insertSheet("space", 2);
-  var letter_sheet = spreadsheet.getSheetByName("letter");
-  var space_sheet = spreadsheet.getSheetByName("space");
-  //create article_sheet
-  article_sheet.setName("article");
-  article_sheet.appendRow(['title', 'article','writer_id','number']);
-  article_sheet.setColumnWidth(1, 200);
-  article_sheet.setColumnWidth(2, 500);
-  article_sheet.setColumnWidth(3, 250);
-  article_sheet.setColumnWidth(4, 100);
-  
-  //create letter_sheet
-  letter_sheet.appendRow(["", 'size','font']);
-  var letter_cells = letter_sheet.getRange(2,1,4,1);
-  var L_words = [["Harmony"],["version"],["title"],["article"]];
-  letter_cells.setValues(L_words);
-  letter_sheet.setColumnWidth(1, 100);
-  letter_sheet.setColumnWidth(2, 50);
-  letter_sheet.setColumnWidth(3, 50);
-  var initial_letter_a = letter_sheet.getRange(2,2,4,1);
-  initial_letter_a.setValues([[60],[15],[20],[10]]);
-  var initial_letter_b = letter_sheet.getRange(2,3,4,1);
-  initial_letter_b.setValues([["Times New Roman"],["Arial"],["Arial"],["Arial"]]);
-  
-  //create space_sheet
-  space_sheet.appendRow(["", 'size']);
-  var space_cells = space_sheet.getRange(2,1,4,1);
-  var S_words = [["H-V"],["V-T"],["T-A"],["A-T"]];
-  space_cells.setValues(S_words);
-  space_sheet.setColumnWidth(1, 100);
-  space_sheet.setColumnWidth(2, 50);
-  space_sheet.setColumnWidth(3, 50);
-  var initial_space = space_sheet.getRange(2,2,4,1);
-  initial_space.setValues([[0],[0],[10],[20]]);
-  
-  var textId = spreadsheet.getId();
-  spreadsheet_id.setValue(textId);
-  return spreadsheet;
-}
-
-function get_spreadsheet(sheet_id) {
-  if (sheet_id == null) {
-    return create_spreadsheet("initial");
-  } else {
-    try {
-      return SpreadsheetApp.openById(sheet_id);
-    } catch(e) {
-      try{
-        return SpreadsheetApp.openById(initial_id);
-      } catch(e){
-        return create_spreadsheet("initial");
-      }
-    }
-  }
-}
-
-function cancelling(inputing_row,sheet){
-  sheet.getRange(inputing_row,1,1,4).clearContent();//‹L–‚ÌƒZƒ‹“à—e‚ğÁ‹
-  manage_sheet.getRange(2,1,1,3).clearContent();
-  manage_sheet.getRange(2,6).clearContent();
-  return;
-}
-
 function reply(bot_message,e){
   var json = JSON.parse(e.postData.contents);
   var reply_token= json.events[0].replyToken;
@@ -105,88 +23,113 @@ function reply(bot_message,e){
   });
 }
 
-
-
-
-function doPost(e) {
+function doPost(e){
   var json = JSON.parse(e.postData.contents);
   
   var user_id = json.events[0].source.userId;
   var user_message = json.events[0].message.text;
   
-  if(spreadsheet_id.getValue() == 0){
-    create_spreadsheet("initial");
-  }
-  
+  //open manege spread sheet
+  var manage_sps = SpreadsheetApp.openById('ID of manage spreadsheet');
+  var manage_sheet = manage_sps.getSheets()[0];
+  //get ID of up-to-date version "Harmony" spreadsheet
+  var spreadsheet_id = manage_sheet.getRange(2, 8);
   var sheet_id = spreadsheet_id.getValue();
-  var spreadsheet = get_spreadsheet(sheet_id);
-  var sheet = spreadsheet.getSheets()[0];
-  var cell;
-  if(inputing_row.getValue() == 0){
-    inputing_row.setValue(sheet.lastRow()+1);
+  //open "Harmony" spread sheet 
+  var spreadsheet = SpreadsheetApp.openById(sheet_id);
+  var article_sheet = spreadsheet.getSheets()[0];
+  var letter_sheet = spreadsheet.getSheets()[1];
+  var space_sheet = spreadsheet.getSheets()[2];
+  var version_name = spreadsheet.getName();
+  
+  if(user_id == "U82fa048b16511463e19e9b6e9436ad02" && user_message == "ä½œæˆä¸­"){
+    return reply("ä½œæˆä¸­ã®ã‚¹ãƒ—ãƒ¬ãƒƒãƒ‰ã‚·ãƒ¼ãƒˆã ã‚ˆï¼" + spreadsheet.getUrl(),e);
   }
   
-  //V‚µ‚¢ƒn[ƒ‚ƒj[—p‚ÌƒXƒvƒŒƒbƒhƒV[ƒgì¬
-  if(user_message == "ƒn[ƒ‚ƒj[ì¬"){
-    if(user_id == "Line User ID of admin"){
-      version.setValue(1);
-      return reply("ƒo[ƒWƒ‡ƒ“–¼‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢",e);
-    }else {
-      return reply(user_id,e);
-    }
-  }
-  if(version.getValue() == 1){
-    if(user_id == "Line User ID of admin"){
-      var sps_url = create_spreadsheet(user_message).getUrl();
-      version.setValue(0);
-      document_ver.setValue(1);
-      inputing_row.setValue(2);
-      return reply("ì¬Š®—¹I\n" + sps_url,e);
-    }
-  }
+  if(user_id == "U82fa048b16511463e19e9b6e9436ad02" && user_message == "å®Ÿè¡Œ"){
+    //get document
+    var document_ver = manage_sheet.getRange(2, 11);
+    var document_id = manage_sheet.getRange(2, 10);
+    var document = DocumentApp.create(version_name + " Ver " + document_ver.getValue() + ".0");
   
-  //Šñe
-  if(user_message == "Šñe‚·‚é" && using.getValue() == 0){
-    using.setValue(1);
-    entering_user.setValue(user_id);
+    /*function make_space(size){
+    var space = document.appendParagraph(" ").setFontSize(size);
+    }*/
+  
+    /*parameters
+    var harmony_size = letter_sheet.getRange(2, 2);
+    var harmony_font = letter_sheet.getRange(2, 3);
+    var version_size = letter_sheet.getRange(3, 2);
+    var version_font = letter_sheet.getRange(3, 3);
+    var title_size = letter_sheet.getRange(4, 2);
+    var title_font = letter_sheet.getRange(4, 3);
+    var article_size = letter_sheet.getRange(5, 2);
+    var article_font = letter_sheet.getRange(5, 3);
+
+    var H-V_space_size = space_sheet.getRange(, );
+    var H-V_space_amount = space_sheet.getRange(, );
+    var V-T_space_size = space_sheet.getRange(, );
+    var V-T_space_amount = space_sheet.getRange(, );
+    var T-A_space_size = space_sheet.getRange(, );
+    var T-A_space_amount = space_sheet.getRange(, );
+    var A-T_space_size = space_sheet.getRange(, );
+    var A-T_space_amount = space_sheet.getRange(, );  */
+  
+    var hs = letter_sheet.getRange(2, 2).getValue();
+    var hf = letter_sheet.getRange(2, 3).getValue();
+    var vs = letter_sheet.getRange(3, 2).getValue();
+    var vf = letter_sheet.getRange(3, 3).getValue();
+    var ts = letter_sheet.getRange(4, 2).getValue();
+    var tf = letter_sheet.getRange(4, 3).getValue();
+    var as = letter_sheet.getRange(5, 2).getValue();
+    var af = letter_sheet.getRange(5, 3).getValue();
+  
+    var HVs = space_sheet.getRange(2, 2).getValue();
+    var VTs = space_sheet.getRange(3, 2).getValue();
+    var TAs = space_sheet.getRange(4, 2).getValue();
+    var ATs = space_sheet.getRange(5, 2).getValue();
+  
+    var space;
+  
+    //sort
+    var lastrow = article_sheet.getLastRow();
+    var range = article_sheet.getRange(2,1,lastrow-1,4);
+    range.sort([{column: 4,ascending: true}]);
+  
+    //write "Harmony"
+    var harmony = document.insertParagraph(0,"Harmony");
+    harmony.setFontSize(hs);
+    harmony.setFontFamily(hf);
+    harmony.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    space = document.appendParagraph(" ").setFontSize(HVs);
+  
+    //write version
+    var version = document.appendParagraph(version_name);
+    version.setFontSize(vs);
+    version.setFontFamily(vf);
+    version.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+    space = document.appendParagraph(" ").setFontSize(VTs);
+  
+    //write articles
+    for(var article_row = 2; article_row <= lastrow; article_row=article_row +1){
+      //title
+      var title = document.appendParagraph(article_sheet.getRange(article_row, 1).getValue());
+      title.setFontSize(ts);
+      title.setFontFamily(tf);
+      title.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
+      space = document.appendParagraph(" ").setFontSize(TAs);
+      //article
+      var article = document.appendParagraph(article_sheet.getRange(article_row, 2).getValue());
+      article.setFontSize(as);
+      article.setFontFamily(af);
+      article.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
+      space = document.appendParagraph(" ").setFontSize(ATs);
+    }
     
-    cell = sheet.getRange(inputing_row.getValue(), 3)
-    cell.setValue(user_id);
-      
-    return reply("ƒ^ƒCƒgƒ‹‚Í‰½‚Å‚·‚©H",e);
-  }else if(user_message == "Šñe‚·‚é"){
-    return reply("Œ»İg—p’†‚Å‚·I‚Ü‚½Œã‚Å‚¨‚µ‚­‚¾‚³‚¢I",e);
-  }
-  
-  if(using.getValue() == 1 && user_id == entering_user.getValue()){
-    if(user_message == "’†~"){
-      cancelling(inputing_row.getValue(),sheet);
-      return reply("’†~‚µ‚Ü‚µ‚½B\nÄ“xŠñe‚·‚éê‡‚Í‚à‚¤ˆê“xuŠñe‚·‚év‚ÆŒ¾‚Á‚Ä‚­‚¾‚³‚¢ô",e);
-    }
-    if(title.getValue() == 0){
-      title.setValue(1);
-      
-      cell = sheet.getRange(inputing_row.getValue(),1);
-      cell.setValue(user_message);
-      
-      reply("‹L–‚Ì“à—e‚ğ‘‚¢‚Ä‚­‚¾‚³‚¢",e);
-      return reply(e);
-    }else if(article.getValue() == 0){
-      cell = sheet.getRange(inputing_row.getValue(),2);
-      cell.setValue(user_message);
-      
-      manage_sheet.getRange(2,1,1,3).clearContent();
-      manage_sheet.getRange(2,6).clearContent();
-      inputing_row.setValue(inputing_row.getValue() + 1);
-      return reply("ŠñeŠ®—¹‚µ‚Ü‚µ‚½I‚ ‚è‚ª‚Æ‚¤‚²‚´‚¢‚Ü‚·[I",e);
-    }
-  }
-  
-  if(user_message == "ƒwƒ‹ƒv"){
-    return reply("Šñe‚µ‚½‚¢‚Æ‚«‚ÍuŠñe‚·‚év\n‘‚¢‚Ä‚é“r’†‚Å‚â‚ß‚½‚­‚È‚Á‚½‚çu’†~v\n‚ÆŒ¾‚Á‚Ä‚­‚¾‚³‚¢ô\n‚»‚Ì‘¼ƒoƒOA¿–âA—v–]‚È‚Ç‚ ‚è‚Ü‚µ‚½‚ç”¨’†‚Ü‚Å`",e);
-  }
-  
-  else{
-    return reply("•ª‚©‚ç‚È‚¢‚±‚Æ‚ª‚ ‚Á‚½‚çuƒwƒ‹ƒvv‚Á‚ÄŒ¾‚Á‚Ä‚ËI",e);
+    document_ver.setValue(document_ver.getValue() + 1);
+    var document_url = document.getUrl();
+    return reply("å®Ÿè¡Œã—ã¾ã—ãŸï¼" + document_url,e);
+  }else{
+    return reply("å®Ÿè¡Œã™ã‚‹æ¨©é™ãŒãªã„ã€ã‚ã‚‹ã„ã¯ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãŒé–“é•ã£ã¦ã„ã¾ã™ã€‚\nã€Œå®Ÿè¡Œã€ã‹ã€Œä½œæˆä¸­ã€ã¨è¨€ã£ã¦ã¿ã¦ãã ã•ã„ï¼",e);
   }
 }
